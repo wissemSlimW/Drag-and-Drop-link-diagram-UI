@@ -1,0 +1,16 @@
+.iconContainer {
+  padding: 8px;
+  width: 44px;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.circleShape {
+  border-radius: 50%;
+}
+.hexagonShape {
+}
+.squareShape {
+  border-radius: 10px;
+}

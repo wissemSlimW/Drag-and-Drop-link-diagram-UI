@@ -1,0 +1,1 @@
+type Shapes = "square" | "circle" | "hexagon"
