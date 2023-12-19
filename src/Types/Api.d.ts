@@ -6,13 +6,14 @@ interface FindOneApi {
 interface GetAllApi {
     endpoint: string,
     handleError?: (err: any) => void;
+    dependencies?: React.DependencyList
 }
 interface RemoveApi {
     endpoint: string,
-    id?: string,
+    id?: number,
     handleError?: (err: any) => void
     handleResponse?: (res: any) => void,
-    setReady: React.Dispatch<React.SetStateAction<boolean>>,
+    setReady?: React.Dispatch<React.SetStateAction<boolean>>,
 }
 interface UpdateApi<T> {
     endpoint: string,

@@ -3,6 +3,7 @@ import Draggable from 'react-draggable';
 import Xarrow, { useXarrow } from 'react-xarrows';
 import "./styles.css";
 import { Icon } from '../Icon/Icon';
+import { COLORS } from '../../constants/constants';
 
 
 const shapesStyle: Record<Shapes, string> = { circle: "circleShape", hexagon: "hexagonShape", square: "squareShape" }
@@ -78,13 +79,12 @@ export const DraggablePage = ({ showConnectors, page, addArrow, handleDrop }: {
         updateXarrow()
     }
     return (
-        <Draggable defaultClassNameDragging='' defaultPosition={page.position} onDrag={handleDrag} onStop={handleStop}>
+        <Draggable defaultClassNameDragging='' defaultPosition={{ x: page.x!, y: page.y! }} onDrag={handleDrag} onStop={handleStop}>
             <div
                 id={page.id!.toString()}
-                style={{ backgroundColor: page.color }}
+                style={{ backgroundColor: COLORS.find(c => c.id === page.color)?.value }}
                 className={`iconContainer ${shapesStyle[page.shape]}`}
                 ref={ref}
-
                 onDragOver={e => {
                     e.preventDefault()
                 }}

@@ -3,7 +3,11 @@ import { FormEvent, useState } from "react"
 import { COLORS, ICONS, SHAPES } from "../../constants/constants"
 import { useAddApi } from "../../Api/useAddApi"
 
-export const AddDialog = ({ showDialog, setShowDialog }: { showDialog: boolean, setShowDialog: React.Dispatch<React.SetStateAction<boolean>> }) => {
+export const AddDialog = ({ showDialog, setShowDialog, setPages }: {
+    showDialog: boolean,
+    setShowDialog: React.Dispatch<React.SetStateAction<boolean>>
+    setPages: React.Dispatch<React.SetStateAction<Page[]>>
+}) => {
 
     const [data, setData] = useState<Page>({
         color: null! as string,
@@ -13,8 +17,19 @@ export const AddDialog = ({ showDialog, setShowDialog }: { showDialog: boolean, 
     })
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault()
-        useAddApi({ endpoint: 'pages', body: data })
-
+        useAddApi({
+            endpoint: 'pages', body: data, handleResponse: (res) => {
+                console.log({ res })
+                setPages(prev => [...prev, res])
+                setShowDialog(false)
+                setData({
+                    color: null! as string,
+                    icon: null! as Page['icon'],
+                    title: '',
+                    shape: null! as Shapes
+                })
+            }
+        })
     }
 
     return (<Dialog open={showDialog}

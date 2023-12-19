@@ -13,7 +13,7 @@ export const useUpdateApi = <T>({
   setReady(false);
   axios
     .put(`${apiUrl}/${endpoint}${id ? "/" + id : ""}`, body)
-    .then((response) => handleResponse?.(response))
+    .then((response) => handleResponse?.(response.data))
     .catch((err) => handleError?.(err?.response))
     .finally(() => setReady(true));
 };

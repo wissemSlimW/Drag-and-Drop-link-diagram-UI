@@ -1,5 +1,6 @@
 interface Confguration {
-    id?:number
+    id?: number
     pageId: number,
-    position: { y: number, x: number },
+    y: number,
+    x: number,
 }

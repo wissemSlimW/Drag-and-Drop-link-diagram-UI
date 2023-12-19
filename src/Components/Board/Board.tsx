@@ -6,37 +6,66 @@ import { AddCircle } from "../../Icons";
 import "./styles.css";
 import { useGetAllApi } from "../../Api/useGetAllApi";
 import { useAddApi } from "../../Api/useAddApi";
+import { useApi } from "../../Api/useApi";
+import { useRemoveApi } from "../../Api/useRemoveApi";
 
 
 
 export const Board = () => {
+    const [arrows, setArrows] = useState<Arrow[]>([])
+    const [readyArrows, setReadyArrows] = useState<boolean>(true)
+    const [pages, setPages] = useState<Page[]>([])
+    const [readyPages, setReadyPages] = useState<boolean>(true)
+    useApi({
+        endpoint: 'arrows',
+        handleError: (err) => console.log(err),
+        setData: setArrows,
+        setReady: setReadyArrows
+    })
+    useApi({
+        endpoint: 'pages',
+        handleError: (err) => console.log(err),
+        setData: setPages,
+        setReady: setReadyPages
+    })
 
-    const { data: tools } = useGetAllApi<Page>({ endpoint: '' })
-    const { data: arrows } = useGetAllApi<Arrow>({ endpoint: '' })
     const [showDialog, setShowDialog] = useState(false)
-    const [pages, setPages] = useState<Confguration[]>([])
+    const [config, setConfig] = useState<Confguration[]>([])
     const addArrow = ({ start, end }: { start: string, end: string }) => {
-        useAddApi({ endpoint: 'arrows', body: { start, end } })
+        useAddApi({ endpoint: 'arrows', body: { start: +start, end: +end }, handleResponse: (res) => setArrows([...arrows, res]) })
     };
-    const configPages = useMemo(() => pages.map(p => {
-        const page = tools.find(t => t.id === p.pageId)!
+    const configPages = useMemo(() => config.map(p => {
+        const page = pages.find(t => t.id === p.pageId)!
         return ({
             ...p,
             ...page
         })
-    }), [tools, pages])
+    }), [pages, config])
 
     const handleDropPage = (x: number, y: number, page: Page) => {
         if (x > 80) {
-            if (pages.find(p => p.pageId === page.id)) {
-                const _pages = [...pages]
-                _pages[_pages.findIndex(p => p.pageId === page.id)] = { pageId: page.id!, position: { x, y } }
+            if (config.find(p => p.pageId === page.id)) {
+                const _config = [...config]
+                _config[_config.findIndex(p => p.pageId === page.id)] = { pageId: page.id!, x, y }
+                setConfig(_config)
+
             }
-            else
-                setPages([...pages, { pageId: page.id!, position: { x, y } }])
+            else {
+                // useAddApi({
+                //     endpoint: 'configurations',
+                //     body: { pageId: +page.id!, x, y },
+                //     handleResponse: () => setConfig([...config, { pageId: page.id!, x, y }])
+                // })
+                setConfig([...config, { pageId: page.id!, x, y }])
+            }
         }
         else {
-            setPages(pages.filter(p => p.pageId !== page.id))
+            // useRemoveApi({
+            //     endpoint: 'configurations',
+            //     id: +page.id!,
+            //     handleResponse: () => setConfig(config.filter(p => p.pageId !== page.id))
+            // })
+            setConfig(config.filter(p => p.pageId !== page.id))
         }
     }
 
@@ -45,7 +74,7 @@ export const Board = () => {
             <div className="sideBar" >
                 <h1>Tools</h1>
                 <div className="pagesContainer">
-                    {tools.filter(t => pages.every(p => p.pageId !== t.id)).map((page) => <DraggablePage
+                    {pages.filter(t => config.every(p => p.pageId !== t.id)).map((page) => <DraggablePage
                         handleDrop={(x, y) => handleDropPage(x, y, page)}
                         {...{ key: page.id, addArrow, page, }}
                     />)}
@@ -63,7 +92,7 @@ export const Board = () => {
                     handleDrop={(x, y) => handleDropPage(x, y, page)}
                     {...{ key: page.id, addArrow, page, }}
                 />)}
-                {arrows.map((ar) => (
+                {arrows.filter(a => pages.filter(t => config.every(p => p.pageId !== t.id)).every(p => p.id !== a.end && a.start !== p.id)).map((ar) => (
                     <Xarrow
                         path="grid"
                         start={ar.start.toString()}
@@ -72,7 +101,7 @@ export const Board = () => {
                     />
                 ))}
             </div>
-            <AddDialog {...{ setShowDialog, showDialog }} />
+            <AddDialog {...{ setShowDialog, showDialog, setPages }} />
         </Xwrapper>
     );
 }
